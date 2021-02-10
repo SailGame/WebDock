@@ -3,6 +3,7 @@
 ## Project setup
 ```
 yarn install
+yarn proto
 ```
 
 ### Compiles and hot-reloads for development

@@ -7,11 +7,13 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "proto": "protoc -I=proto/ `find proto -name '*.proto'` --grpc-web_out=import_style=typescript,mode=grpcwebtext:src/grpc/"
   },
   "dependencies": {
     "core-js": "^3.6.5",
     "element-plus": "^1.0.2-beta.32",
+    "grpc-web": "^1.2.1",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.0-0",

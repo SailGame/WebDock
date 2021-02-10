@@ -1,9 +1,25 @@
 import { createStore } from 'vuex'
+import { GameCoreClient } from '../grpc/core/CoreServiceClientPb'
+import { LoginArgs } from '../grpc/core/types_pb'
 
-export default createStore({
+export interface RootState {
+  token: string;
+  client: GameCoreClient
+}
+
+export default createStore<RootState>({
   state: {
+    token: '',
+    client: new GameCoreClient('')
   },
   mutations: {
+    async login (state: RootState, payload: {userName: string; password: string}) {
+      let args = new LoginArgs()
+      args.setUsername(payload.userName)
+      args.setPassword(payload.password)
+      let ret = await state.client.login(args, null)
+      state.token = ret.getToken()
+    }
   },
   actions: {
   },
