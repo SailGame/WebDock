@@ -4,7 +4,7 @@ import { LoginArgs } from '../grpc/core/types_pb'
 
 export interface RootState {
   token: string;
-  client: GameCoreClient
+  client: GameCoreClient;
 }
 
 export default createStore<RootState>({
@@ -14,10 +14,10 @@ export default createStore<RootState>({
   },
   mutations: {
     async login (state: RootState, payload: {userName: string; password: string}) {
-      let args = new LoginArgs()
+      const args = new LoginArgs()
       args.setUsername(payload.userName)
       args.setPassword(payload.password)
-      let ret = await state.client.login(args, null)
+      const ret = await state.client.login(args, null)
       state.token = ret.getToken()
     }
   },
