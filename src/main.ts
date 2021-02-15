@@ -6,4 +6,7 @@ import store from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
 
+// games
+import './games'
+
 createApp(App).use(ElementPlus).use(store).use(router).mount('#app')
