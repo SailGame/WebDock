@@ -8,7 +8,7 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "proto": "protoc -I=proto/ `find proto -name '*.proto'` --js_out=import_style=commonjs,binary:src/grpc/ --grpc-web_out=import_style=typescript,mode=grpcwebtext:src/grpc/"
+    "proto": "mkdir -p src/grpc && protoc -I=proto/ `find proto -name '*.proto'` --js_out=import_style=commonjs,binary:src/grpc/ --grpc-web_out=import_style=typescript,mode=grpcwebtext:src/grpc/"
   },
   "dependencies": {
     "core-js": "^3.6.5",

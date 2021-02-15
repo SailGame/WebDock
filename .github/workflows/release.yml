@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v1
+      with:
+        version: '3.x'
+
+    - name: Install grpc-web
+      shell: bash
+      run: |
+        wget https://github.com/grpc/grpc-web/releases/download/${{env.GRPC_WEB_VERSION}}/protoc-gen-grpc-web-${{env.GRPC_WEB_VERSION}}-linux-x86_64
+        sudo mv protoc-gen-grpc-web-${{env.GRPC_WEB_VERSION}}-linux-x86_64 /usr/local/bin/protoc-gen-grpc-web
+        sudo chmod +x /usr/local/bin/protoc-gen-grpc-web
+
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+
+    - name: Cache node modules
+      uses: actions/cache@v2
+      id: node-modules-cache
+      with:
+        path: node_modules
+        key: ${{ hashFiles('yarn.lock') }}
+
+    - name: yarn install
+      if: steps.node-modules-cache.outputs.cache-hit != 'true'
+      run: yarn install
+
+    - name: grpc proto
+      run: yarn proto
+
+    - name: eslint
+      run: yarn lint
+
+    - name: Build
+      run: yarn build
+
+    - name: Unit Test
+      run: yarn test:unit
+
+    - name: Create package
+      id: package
+      shell: bash
+      run: |
+        mkdir release
+        cp dist release/
+        cp README.md release/
+        cp LICENSE release/
+        PACKAGE_NAME=sailgame.webdock.${GITHUB_REF#refs/tags/}.tar.gz
+        tar -czvf $PACKAGE_NAME -C release .
+        echo ::set-output name=name::${PACKAGE_NAME}
+
+    - name: Upload asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ../${{ steps.package.outputs.name }}
+        asset_name: ${{ steps.package.outputs.name }}
+        asset_content_type: application/gzip
