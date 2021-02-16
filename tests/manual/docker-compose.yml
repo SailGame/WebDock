@@ -1,0 +1,23 @@
+version: '3'
+services:
+  core-server:
+    build:
+      context: ./core
+    image: sailgame/core
+
+  envoy:
+    image: envoyproxy/envoy:v1.17.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./envoy/envoy.yaml:/etc/envoy/envoy.yaml"
+    depends_on:
+      - "core-server"
+    command: 
+      - "/usr/local/bin/envoy"
+      - "-c"
+      - "/etc/envoy/envoy.yaml"
+      - "-l"
+      - "trace"
+      - "--log-path" 
+      - "/tmp/envoy_info.log"

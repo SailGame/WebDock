@@ -3,6 +3,13 @@
 ## Project setup
 ```
 yarn install
+yarn proto
+```
+
+## Backend
+```
+# ./tests/manual
+docker-compose up -d
 ```
 
 ### Compiles and hot-reloads for development
