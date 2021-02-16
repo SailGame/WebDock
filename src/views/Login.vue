@@ -28,7 +28,8 @@ import HelloWorld from '@/components/HelloWorld.vue' // @ is an alias to /src
   },
   methods: {
     login () {
-      this.$store.commit('login', this.userName, this.password)
+      this.$store.dispatch('login', this.userName, this.password)
+      this.$router.push({ name: 'Home' })
     }
   }
 })
