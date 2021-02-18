@@ -1,7 +1,8 @@
 import { ErrorNumber } from '@/grpc/core/error_pb'
+import { ClientReadableStream } from 'grpc-web'
 import { createStore } from 'vuex'
 import { GameCoreClient } from '../grpc/core/CoreServiceClientPb'
-import { LoginArgs } from '../grpc/core/types_pb'
+import { ListenArgs, LoginArgs, BroadcastMsg } from '../grpc/core/types_pb'
 
 const DEFAULT_CORE_HOSTNAME = 'http://localhost:8000'
 
@@ -13,6 +14,7 @@ export interface RootState {
   config: Config;
   token: string;
   client: GameCoreClient;
+  lisStream: ClientReadableStream<BroadcastMsg> | null;
 }
 
 export default createStore<RootState>({
@@ -21,7 +23,8 @@ export default createStore<RootState>({
       coreProxy: DEFAULT_CORE_HOSTNAME
     },
     token: '',
-    client: new GameCoreClient(DEFAULT_CORE_HOSTNAME)
+    client: new GameCoreClient(DEFAULT_CORE_HOSTNAME),
+    lisStream: null
   },
   mutations: {
     setConfig (state: RootState, config: Config) {
@@ -32,6 +35,9 @@ export default createStore<RootState>({
     },
     setToken (state: RootState, token: string) {
       state.token = token
+    },
+    setListenStream (state: RootState, stream: ClientReadableStream<BroadcastMsg>) {
+      state.lisStream = stream
     }
   },
   actions: {
@@ -49,6 +55,19 @@ export default createStore<RootState>({
         return ret
       }
       commit('setToken', ret.getToken())
+      await this.dispatch('listen')
+    },
+    async listen ({ commit, state }) {
+      const args = new ListenArgs()
+      args.setToken(state.token)
+      const stream = await state.client.listen(args) as ClientReadableStream<BroadcastMsg>
+      stream.on('data', (response) => {
+        this.dispatch('message', response)
+      })
+      stream.on('end', () => {
+        commit('setToken', '')
+        commit('setListenStream', null)
+      })
     }
   },
   modules: {
